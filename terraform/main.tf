@@ -10,12 +10,15 @@ terraform {
 
 # Configure the AWS provider
 provider "aws" {
-  region     = "eu-central-1"
+  region = "eu-north-1" # Вкажіть ваш регіон
 }
 
+# Create Security Group
 resource "aws_security_group" "web_app" {
   name        = "web_app"
-  description = "security group"
+  description = "Security group for web app"
+
+  # Allow HTTP traffic (порт 80)
   ingress {
     from_port   = 80
     to_port     = 80
@@ -23,33 +26,41 @@ resource "aws_security_group" "web_app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- ingress {
+  # Allow SSH traffic (порт 22)
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  # Allow all outbound traffic
   egress {
     from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags= {
+  tags = {
     Name = "web_app"
   }
 }
 
+# Create EC2 instance
 resource "aws_instance" "webapp_instance" {
-  ami           = "ami-0669b163befffbdfc"
+  ami           = "ami-02a0945ba27a488b7" 
   instance_type = "t2.micro"
-  security_groups= ["web_app"]
+
+  # Use the created Security Group
+  vpc_security_group_ids = [aws_security_group.web_app.id]
+
   tags = {
     Name = "webapp_instance"
   }
 }
 
+# Output instance public IP
 output "instance_public_ip" {
   value     = aws_instance.webapp_instance.public_ip
   sensitive = true
