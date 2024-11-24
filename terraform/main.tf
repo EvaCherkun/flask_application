@@ -14,8 +14,8 @@ provider "aws" {
 }
 
 # Create Security Group
-resource "aws_security_group" "web_app" {
-  name        = "web_app"
+resource "aws_security_group" "Web_app" {
+  name        = "Web_app"
   description = "Security group for web app"
 
   # Allow HTTP traffic (порт 80)
@@ -43,7 +43,7 @@ resource "aws_security_group" "web_app" {
   }
 
   tags = {
-    Name = "web_app"
+    Name = "Web_app"
   }
 }
 
@@ -53,7 +53,7 @@ resource "aws_instance" "webapp_instance" {
   instance_type = "t3.micro"
 
   # Use the created Security Group
-  vpc_security_group_ids = [aws_security_group.web_app.id]
+  vpc_security_group_ids = [aws_security_group.Web_app.id]
 
   tags = {
     Name = "webapp_instance"
