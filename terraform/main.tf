@@ -10,7 +10,7 @@ terraform {
 
 # Configure the AWS provider
 provider "aws" {
-  region = "eu-north-1" # Вкажіть ваш регіон
+  region = "eu-north-1" 
 }
 
 # Create Security Group
@@ -49,8 +49,8 @@ resource "aws_security_group" "web_app" {
 
 # Create EC2 instance
 resource "aws_instance" "webapp_instance" {
-  ami           = "ami-02a0945ba27a488b7" 
-  instance_type = "t2.micro"
+  ami           = "ami-0915bcb5fa77e4892" 
+  instance_type = "t3.micro"
 
   # Use the created Security Group
   vpc_security_group_ids = [aws_security_group.web_app.id]
