@@ -13,9 +13,14 @@ provider "aws" {
   region = "eu-north-1"
 }
 
-# Create a new Security Group
+# Create random ID for uniqueness
+resource "random_id" "suffix" {
+  byte_length = 8
+}
+
+# Create a new Security Group with a unique name
 resource "aws_security_group" "web_app_sg" {
-  name        = "web_app_sg"
+  name        = "web_app_sg-${random_id.suffix.hex}"
   description = "Security group for web app"
 
   # Allow HTTP traffic (порт 80)
