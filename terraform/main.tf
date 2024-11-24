@@ -10,12 +10,12 @@ terraform {
 
 # Configure the AWS provider
 provider "aws" {
-  region = "eu-north-1" 
+  region = "eu-north-1"
 }
 
-# Create Security Group
-resource "aws_security_group" "Web_app" {
-  name        = "Web_app"
+# Create a new Security Group
+resource "aws_security_group" "web_app_sg" {
+  name        = "web_app_sg"
   description = "Security group for web app"
 
   # Allow HTTP traffic (порт 80)
@@ -26,7 +26,7 @@ resource "aws_security_group" "Web_app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow SSH traffic (порт 22)
+  # Allow SSH traffic 
   ingress {
     from_port   = 22
     to_port     = 22
@@ -43,7 +43,7 @@ resource "aws_security_group" "Web_app" {
   }
 
   tags = {
-    Name = "Web_app"
+    Name = "web_app_sg"
   }
 }
 
@@ -53,7 +53,7 @@ resource "aws_instance" "webapp_instance" {
   instance_type = "t3.micro"
 
   # Use the created Security Group
-  vpc_security_group_ids = [aws_security_group.Web_app.id]
+  vpc_security_group_ids = [aws_security_group.web_app_sg.id]
 
   tags = {
     Name = "webapp_instance"
