@@ -49,7 +49,7 @@ resource "aws_security_group" "Web_app" {
 
 # Create EC2 instance
 resource "aws_instance" "webapp_instance" {
-  ami           = "ami-0915bcb5fa77e4892" 
+  ami           = "ami-08eb150f611ca277f" 
   instance_type = "t3.micro"
 
   # Use the created Security Group
