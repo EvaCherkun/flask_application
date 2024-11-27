@@ -59,13 +59,14 @@ resource "aws_instance" "webapp_instance" {
 
   user_data = <<-EOF
     #!/bin/bash
-    # Встановлюємо Docker
+  
+    sudo apt-get update -y
+    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
     curl -fsSL https://get.docker.com -o get-docker.sh
     sudo sh get-docker.sh
-    sudo groupadd docker
     sudo usermod -aG docker ubuntu
-    newgrp docker
-
+    sudo systemctl restart docker
+    sudo systemctl status docker --no-pager
     docker pull lunariiin/order_stack:latest
     docker run -d -p 80:80 lunariiin/order_stack:latest
   EOF
