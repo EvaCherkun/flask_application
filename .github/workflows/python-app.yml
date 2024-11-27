@@ -104,6 +104,9 @@ jobs:
           docker build -t lunariiin/order_stack .
           docker push lunariiin/order_stack
 
+      - name: Configure AWS CLI Region
+        run: aws configure set region eu-north-1  # Replace with your region
+
       - name: Deploy Docker container via AWS CLI
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -116,5 +119,4 @@ jobs:
             docker stop $(docker ps -q) || true
             docker run -d -p 80:80 lunariiin/order_stack:latest
           EOF
-
 
