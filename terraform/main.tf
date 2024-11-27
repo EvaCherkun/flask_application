@@ -15,11 +15,9 @@ terraform {
   }
 }
 
-
 provider "aws" {
   region = "eu-north-1"
 }
-
 
 resource "random_id" "suffix" {
   byte_length = 8
@@ -29,7 +27,6 @@ resource "aws_security_group" "web_app_sg" {
   name        = "web_app_sg-${random_id.suffix.hex}"
   description = "Security group for web app"
 
-  
   ingress {
     from_port   = 80
     to_port     = 80
@@ -37,7 +34,6 @@ resource "aws_security_group" "web_app_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  
   ingress {
     from_port   = 22
     to_port     = 22
@@ -57,12 +53,23 @@ resource "aws_security_group" "web_app_sg" {
   }
 }
 
-
 resource "aws_instance" "webapp_instance" {
   ami           = "ami-08eb150f611ca277f"
   instance_type = "t3.micro"
 
-  
+  user_data = <<-EOF
+    #!/bin/bash
+    # Встановлюємо Docker
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+    sudo groupadd docker
+    sudo usermod -aG docker ubuntu
+    newgrp docker
+
+    docker pull lunariiin/order_stack:latest
+    docker run -d -p 80:80 lunariiin/order_stack:latest
+  EOF
+
   vpc_security_group_ids = [aws_security_group.web_app_sg.id]
 
   tags = {
