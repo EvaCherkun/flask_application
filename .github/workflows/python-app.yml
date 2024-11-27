@@ -104,13 +104,17 @@ jobs:
           docker build -t lunariiin/order_stack .
           docker push lunariiin/order_stack
 
-      - name: SSH into EC2 and pull the Docker image
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: |
+      - name: Deploy Docker container via AWS CLI
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws ec2 describe-instances --filters "Name=tag:Name,Values=webapp_instance" --query "Reservations[*].Instances[*].PublicDnsName" --output text > instance_dns.txt
+          INSTANCE_DNS=$(cat instance_dns.txt)
+          ssh -o StrictHostKeyChecking=no ubuntu@$INSTANCE_DNS << EOF
             docker pull lunariiin/order_stack:latest
-            docker run -d -p 80:80 lunariiin/order_stack:latest  # You can adjust the port mapping here if needed
+            docker stop $(docker ps -q) || true
+            docker run -d -p 80:80 lunariiin/order_stack:latest
+          EOF
+
 
