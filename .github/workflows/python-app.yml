@@ -85,7 +85,7 @@ jobs:
   # Docker deployment job
   docker_deploy:
     runs-on: ubuntu-latest
-    needs: terraform  # Ensures this job runs after the Terraform job completes
+    needs: terraform 
 
     steps:
       - uses: actions/checkout@v4
@@ -96,27 +96,31 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Your Docker Hub username
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Your Docker Hub password
+          username: ${{ secrets.DOCKER_USERNAME }} 
+          password: ${{ secrets.DOCKER_PASSWORD }}  
 
       - name: Build and push Docker image
         run: |
           docker build -t lunariiin/order_stack .
           docker push lunariiin/order_stack
 
-      - name: Configure AWS CLI Region
-        run: aws configure set region eu-north-1  # Replace with your region
-
-      - name: Deploy Docker container via AWS CLI
+      - name: Deploy Docker container on EC2 instance
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws ec2 describe-instances --filters "Name=tag:Name,Values=webapp_instance" --query "Reservations[*].Instances[*].PublicDnsName" --output text > instance_dns.txt
-          INSTANCE_DNS=$(cat instance_dns.txt)
-          ssh -o StrictHostKeyChecking=no ubuntu@$INSTANCE_DNS << EOF
-            docker pull lunariiin/order_stack:latest
-            docker stop $(docker ps -q) || true
-            docker run -d -p 80:80 lunariiin/order_stack:latest
-          EOF
+          
+          INSTANCE_DNS="${{ secrets.EC2_HOST }}"  
+
+          if [ -n "$INSTANCE_DNS" ]; then
+            echo "EC2 instance DNS found: $INSTANCE_DNS"
+            ssh -o StrictHostKeyChecking=no ubuntu@$INSTANCE_DNS << EOF
+              docker pull lunariiin/order_stack:latest
+              docker stop $(docker ps -q) || true
+              docker run -d -p 80:80 lunariiin/order_stack:latest
+            EOF
+          else
+            echo "EC2 instance DNS not found"
+            exit 1
+          fi
 
