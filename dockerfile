@@ -13,6 +13,6 @@ COPY . .
 
 RUN python -m unittest discover -s . -p "test_*.py"
 
-EXPOSE 5000
+EXPOSE 80
 
 CMD ["python", "app.py"]
