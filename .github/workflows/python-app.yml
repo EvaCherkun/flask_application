@@ -104,16 +104,18 @@ jobs:
           docker build -t lunariiin/order_stack .
           docker push lunariiin/order_stack
 
-      - name: Deploy Docker container to EC2
+      - name: Deploy Docker container via AWS CLI
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}  # Use your private key here
         run: |
-          # Використовуємо публічну DNS з секрету
-          INSTANCE_DNS=${{ secrets.EC2_HOST }}
-          
-          # Виконання команд на EC2
-          ssh -o StrictHostKeyChecking=no ubuntu@$INSTANCE_DNS << EOF
+          # Ensure the private key is available for SSH
+          echo "$EC2_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Deploy Docker container
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
             docker pull lunariiin/order_stack:latest
             docker stop $(docker ps -q) || true
             docker run -d -p 80:80 lunariiin/order_stack:latest
