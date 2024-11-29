@@ -17,7 +17,7 @@ class TestOrderStack(unittest.TestCase):
         self.orders.push_order("Замовлення 2")
         order = self.orders.pop_order()
         self.assertEqual(order, "Замовлення 2")  
-        self.assertEqual(self.orders.size(), 2)
+        self.assertEqual(self.orders.size(), 1)
 
     def test_peek_order(self):
        

@@ -37,8 +37,6 @@ resource "aws_instance" "webapp_instance" {
     docker run -d -p 80:80 lunariiin/order_stack:latest
   EOF
 
-  # security group ID
-  vpc_security_group_ids = ["sg-08a8a854743deb6fd"]
 
   tags = {
     Name = "webapp_instance"
