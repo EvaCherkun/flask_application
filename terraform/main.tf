@@ -38,7 +38,7 @@ resource "aws_instance" "webapp_instance" {
   EOF
 
   # security group ID
-  vpc_security_group_ids = ["sg-07ef34fd40ee02612"]
+  vpc_security_group_ids = ["sg-08a8a854743deb6fd"]
 
   tags = {
     Name = "webapp_instance"
